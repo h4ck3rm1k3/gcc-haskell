@@ -59,7 +59,9 @@ class OwlNodeClass a where
 instance OwlNodeClass StringNode where
   nameString x = "strg"
 
-
+list_of_types = [
+  StringNode
+      ]
 
 
 
