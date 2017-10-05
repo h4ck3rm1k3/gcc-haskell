@@ -21,6 +21,8 @@ library
                      , hgal
                      , text
                      , containers
+                     , network-uri
+                     , network 
                      , parsec >= 3
                      , attoparsec >= 0.13.1.0
                      , parsers
