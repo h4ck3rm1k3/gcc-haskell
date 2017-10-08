@@ -37,8 +37,8 @@ resolver: lts-9.5
 # will not be run. This is useful for tweaking upstream packages.
 packages:
 - location : .
-- location : /home/mdupont/experiments/gcc-haskell/rdf4h
-  extra-dep: true
+#- location : /home/mdupont/experiments/gcc-haskell/rdf4h
+#  extra-dep: true
 - location :
     git: https://github.com/bos/attoparsec
     commit: 20a672185d713578a322678eda506454aeb3e7ee
@@ -54,6 +54,7 @@ packages:
 extra-deps: 
 - hgal-2.0.0.2
 - text-1.2.2.2
+- rdf4h-3.0.1
 - network-uri-2.6.1.0
 # Override default flag values for local packages and extra-deps
 flags: {}

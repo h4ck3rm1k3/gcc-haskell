@@ -1,12 +1,13 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE MultiParamTypeClasses#-}
+{-# OPTIONS_GHC -fwarn-incomplete-patterns #-}
+--{-# LANGUAGE MultiParamTypeClasses#-}
 -- from ~/.stack/indices/Hackage/packages/rdf4h/3.0.1/rdf4h-3.0.1.tar.gz!rdf4h-3.0.1/testsuite/tests/Data/RDF/GraphTestUtils.hs
 module Lib
     ( someFunc,
-      parseRdf1
+--      parseRdf1
     ) where
 import Data.RDF.Types
-import Lib2
+--import Lib2
 import LibData
 import Data.RDF.Query
 import Data.RDF.Namespace
@@ -19,9 +20,9 @@ import Text.RDF.RDF4H.NTriplesParser
 import Data.RDF.Graph.TList
 import System.IO
 import Data.Attoparsec.ByteString (parse,IResult(..))
-import Text.RDF.RDF4H.ParserUtils
+--import Text.RDF.RDF4H.ParserUtils
 
-cb x = Foo2(x)
+--cb x = Foo2(x)
 --processRdf2
 --cb2 = (ProcessRdf cb)
 --cb3 :: Result [Maybe Triple] -> IO b
@@ -75,23 +76,31 @@ data GccElements =
   Predicate(GccPredicates)
   | Types(GccTypes)
   
-class OwlNodeClass o a where
-  nameString :: o -> a -> String
+class OwlNodeClass a where
+  nameString :: a -> String
 
 -- get_pred p = case p of StringNode-> "strg"
 --get_type t = case t of StringCst-> "string_cst"
 
 
-instance OwlNodeClass MainRDF MainRDF where
-  nameString o a = case a of MainRDF -> case a of Type -> "strg"
+instance OwlNodeClass MainRDF where
+  nameString a =  case a of
+                    Type -> "strg"
+                    MainRDF ->  "rdf"
+                    
   
-instance OwlNodeClass GccOntologyData GccElements where
+instance OwlNodeClass GccElements where
 --  nameString o a = "strg"
 -- instance OwlNodeClass GccOntologyData GCCConsts where
-  nameString o a =
+  nameString a =
     case a of
-      Predicate(p) -> case p of StringNode -> "strg"
-      Types(t) -> case t of StringCst-> "string_cst"
+      
+      Predicate(p) -> case p of
+                        StringNode -> "strg"
+                        FunctionNameString(x) -> "strg"
+      Types(t) -> case t of
+                    StringCst-> "string_cst"
+                   
                
   
 list_of_types = [
@@ -99,9 +108,9 @@ list_of_types = [
   Types(StringCst)
       ]
 
-parseRdf1 :: IO (Either ParseFailure (RDF TList))
+--parseRdf1 :: IO (Either ParseFailure (RDF TList))
 exampleTTLFile = "/home/mdupont/experiments/gcc-ontology/data/clean2.ttl"
-parseRdf1 = Lib2.parseFileAttoparsec exampleTTLFile
+--parseRdf1 = Lib2.parseFileAttoparsec exampleTTLFile
       --parsedRDF   = f fromEither :: IO (RDF TList)
 --  f :: IO (Either ParseFailure (RDF a0))
 --a0  instance Rdf TList -- Defined in ‘Data.RDF.Graph.TList’
@@ -111,7 +120,16 @@ parseRdf1 = Lib2.parseFileAttoparsec exampleTTLFile
 --dox x = --  IO (RDF TList)
 
 process_list_item x = ""
-foo x = case x of Triple a b c -> do case c of UNode c1 -> c1
+foo x = case x of Triple a b c -> do
+                    case c of
+                      UNode c1 -> c1
+                      BNode b -> b
+                      BNodeGen c -> T.pack "x"
+                      LNode l -> case l of
+                        PlainL l2 -> l2
+                        PlainLL l2 l3 -> l3
+                        TypedL l3 l4 -> l4
+
 
 -- strings = [
 --   "strg: %-7s ",
@@ -132,7 +150,11 @@ somesteps xt = do
   let pred = map foo xt
   
   let l6 = take 1 xt
-  let l7 = case l6 of [x] -> x
+  let l7 = case l6 of
+             [x] -> x
+             --[] -> (Triple Nothing Nothing Nothing)
+             --(a:b:c) -> (Triple a b c)
+             
   --l6 :: [Triple]
   let subject = case l6 of [Triple a b c] -> a
   let subject_id = case subject of BNode(id1) -> id1
@@ -145,15 +167,31 @@ someFunc = do
   let y = take 1 x
   let s = show y
   putStrLn s
-  
-someFunc2 = do
-  x <- parseRdf1 -- remove the IO
-  let x4 = case x of Right x3 -> x3
-  let xt = triplesOf x4 -- all the triples Data.RDF.Types.triplesOf :: Data.RDF.Types.RDF rdfImpl
 
-  let f = somesteps xt
-  let x2 = show f
-  putStrLn x2
+-- extract_string i2 = do
+-- --  i2 :: Node
+--   case i2  of
+--     --[] -> T.pack "Empty array"
+--     --_ -> T.pack "other"
+--     LNode (PlainL s) -> s
+--     --UNode (url) -> url
+--     --BNode b -> b
+--     --UNode _:_:_ -> T.pack "UNode"
+--     --BNode _:_ -> T.pack "BNode"
+--     --BNodeGen _:_ -> T.pack "BNodeGen"
+--     --BNodeGen b -> T.pack "Some Node"
+--     --LNode (PlainLL a b) ->  b
+                      
+--extract_object x = (extract_string (objectOf x))
+
+-- someFunc2 = do
+--   x <- parseRdf1 -- remove the IO
+--   let x4 = case x of Right x3 -> x3
+--   let xt = triplesOf x4 -- all the triples Data.RDF.Types.triplesOf :: Data.RDF.Types.RDF rdfImpl
+
+--   let f = somesteps xt
+--   let x2 = show f
+--   putStrLn x2
 --  let triples = query graph (Just (unode eswcCommitteeURI)) (Just (unode heldByProp)) Nothing
   --show subject_id
   --x4 :: RDF TList  
