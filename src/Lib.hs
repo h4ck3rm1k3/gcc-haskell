@@ -6,15 +6,15 @@ module Lib
     ( someFunc,
 --      parseRdf1
     ) where
-import Data.RDF.Types
+--import Data.RDF.Types
 --import Lib2
-import LibData
+import LibData (Triple(Triple), load, Node(LNode))
 import Data.RDF.Query
 import Data.RDF.Namespace
 --import Data.Attoparsec
 import Text.RDF.RDF4H.NTriplesSerializer
 import qualified Data.Text as T
-import Data.RDF.Types
+--import Data.RDF.Types
 import Text.RDF.RDF4H.NTriplesParser
 --import Text.RDF.RDF4H.TurtleParser -- TurtleParserCustom
 import Data.RDF.Graph.TList
@@ -120,15 +120,15 @@ exampleTTLFile = "/home/mdupont/experiments/gcc-ontology/data/clean2.ttl"
 --dox x = --  IO (RDF TList)
 
 process_list_item x = ""
-foo x = case x of Triple a b c -> do
-                    case c of
-                      UNode c1 -> c1
-                      BNode b -> b
-                      BNodeGen c -> T.pack "x"
-                      LNode l -> case l of
-                        PlainL l2 -> l2
-                        PlainLL l2 l3 -> l3
-                        TypedL l3 l4 -> l4
+-- foo x = case x of Triple a b c -> do
+--                     case c of
+--                       UNode c1 -> c1
+--                       BNode b -> b
+--                       BNodeGen c -> T.pack "x"
+--                       LNode l -> case l of
+--                         PlainL l2 -> l2
+--                         PlainLL l2 l3 -> l3
+--                         TypedL l3 l4 -> l4
 
 
 -- strings = [
@@ -144,29 +144,29 @@ foo x = case x of Triple a b c -> do
 -- ]
 
 
-somesteps xt = do
-  let xt2 = map process_list_item xt
--- extract the predicates
-  let pred = map foo xt
+-- somesteps xt = do
+--   let xt2 = map process_list_item xt
+-- -- extract the predicates
+--   let pred = map foo xt
   
-  let l6 = take 1 xt
-  let l7 = case l6 of
-             [x] -> x
-             --[] -> (Triple Nothing Nothing Nothing)
-             --(a:b:c) -> (Triple a b c)
+--   let l6 = take 1 xt
+--   let l7 = case l6 of
+--              [x] -> x
+--              --[] -> (Triple Nothing Nothing Nothing)
+--              --(a:b:c) -> (Triple a b c)
              
-  --l6 :: [Triple]
-  let subject = case l6 of [Triple a b c] -> a
-  let subject_id = case subject of BNode(id1) -> id1
-  let pred = case l6 of [Triple a b c] -> b
-  let obj = case l6 of [Triple a b c] -> c
-  obj
+--   --l6 :: [Triple]
+--   let subject = case l6 of [Triple a b c] -> a
+-- --  let subject_id = case subject of BNode(id1) -> id1
+--   let pred = case l6 of [Triple a b c] -> b
+--   let obj = case l6 of [Triple a b c] -> c
+--   obj
 
 someFunc = do
   let x = LibData.load
   let y = take 1 x
-  let s = show y
-  putStrLn s
+  --let s = show y
+  putStrLn "ok"
 
 -- extract_string i2 = do
 -- --  i2 :: Node
@@ -211,7 +211,9 @@ someFunc = do
 --x <- parseRdf1 -- remove the IO
 
 load_step3 x = do
-  let x4 = case x of Right x3 -> x3
+  let x4 = case x of
+             Right x3 -> x3
+             -- Left erro
   x4
 
 --load_step :: RDF TList
@@ -235,6 +237,6 @@ load_step3 x = do
 --current_database = load_store
 --query_current_store = query current_database
 
-get_one_url x = case x of [UNode url] -> url
+--get_one_url x = case x of [UNode url] -> url
 
 --string_constants = query_current_store Nothing (Just (UNode (T.pack "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))) (Just(UNode (T.pack "https://h4ck3rm1k3.github.io/gogccintro/gcc/ontology/2017/05/20/gcc_compiler.owl#string_cst")))
