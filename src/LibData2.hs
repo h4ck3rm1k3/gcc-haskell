@@ -6,7 +6,7 @@ module LibData2
     ) where
 
 
-import LibData (triple, unode2, plainl2, Node, LValue, lnode2)
+import Rdf (triple, unode2, plainl2, lnode2)
 
 load = [
         triple (unode2 "https://h4ck3rm1k3.github.io/gogccintro/gcc/ontology/2017/05/20/gcc_compiler.owl#2206") (unode2 "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") (unode2 "http://www.w3.org/2002/07/owl#NamedIndividual"),
