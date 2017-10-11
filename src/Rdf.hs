@@ -1,7 +1,7 @@
 module Rdf
     (
       unode2, triple, lnode2 , plainl2,
-      Node(..), Triple, LValue
+      Node(..), Triple(..), LValue(..)
     ) where
 
 unode2 :: [Char] -> Node

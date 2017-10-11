@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib, LibData
+  exposed-modules:     Lib, LibData, Rdf, LibData2
   build-depends:       base >= 4.7 && < 5
                      , rdf4h
                      , hgal

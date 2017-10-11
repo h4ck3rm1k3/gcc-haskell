@@ -4,11 +4,17 @@
 -- from ~/.stack/indices/Hackage/packages/rdf4h/3.0.1/rdf4h-3.0.1.tar.gz!rdf4h-3.0.1/testsuite/tests/Data/RDF/GraphTestUtils.hs
 module Lib
     ( someFunc,
+      triple2,
+      triple3,
+      triple4,
+      matchFirst,
+      canStrip
 --      parseRdf1
     ) where
 --import Data.RDF.Types
 --import Lib2
 import LibData (load)
+import LibData2 (load)
 import Data.List
 import Text.Read
 import qualified Data.Text as T
@@ -34,7 +40,7 @@ import qualified Data.Text as T
 --IO (Either ParseFailure (RDF a0))
 --parseRdf1 = Lib2.parseFileAttoparsecCallback exampleTTLFile
 
-import Rdf(Node(..))
+import Rdf(Node(..), Triple(..), LValue(..))
 
 class OwlOntology a where
   baseUrl :: a -> String
@@ -105,71 +111,19 @@ instance OwlNodeClass GccElements where
                         FunctionNameString(x) -> "strg"
       Types(t) -> case t of
                     StringCst-> "string_cst"
-                   
-               
-  
+                                   
 list_of_types = [
   Predicate(StringNode),
   Types(StringCst)
       ]
 
---parseRdf1 :: IO (Either ParseFailure (RDF TList))
 exampleTTLFile = "/home/mdupont/experiments/gcc-ontology/data/clean2.ttl"
---parseRdf1 = Lib2.parseFileAttoparsec exampleTTLFile
-      --parsedRDF   = f fromEither :: IO (RDF TList)
---  f :: IO (Either ParseFailure (RDF a0))
---a0  instance Rdf TList -- Defined in ‘Data.RDF.Graph.TList’
-  --2
---parseRdf = parseRdf1 
---someFunc :: IO ()
---dox x = --  IO (RDF TList)
-
-process_list_item x = ""
--- foo x = case x of Triple a b c -> do
---                     case c of
---                       UNode c1 -> c1
---                       BNode b -> b
---                       BNodeGen c -> T.pack "x"
---                       LNode l -> case l of
---                         PlainL l2 -> l2
---                         PlainLL l2 l3 -> l3
---                         TypedL l3 l4 -> l4
-
-
--- strings = [
---   "strg: %-7s ",
---     "n%*s ",
---     "%*s ",
---     "%-16s ",
---     "%-4s: %s ",
---     "%-4s: %s ",
---     "-uid ",
---     "._80",    
---     "@%-6u "
--- ]
-
-
--- somesteps xt = do
---   let xt2 = map process_list_item xt
--- -- extract the predicates
---   let pred = map foo xt
-  
---   let l6 = take 1 xt
---   let l7 = case l6 of
---              [x] -> x
---              --[] -> (Triple Nothing Nothing Nothing)
---              --(a:b:c) -> (Triple a b c)
-             
---   --l6 :: [Triple]
---   let subject = case l6 of [Triple a b c] -> a
--- --  let subject_id = case subject of BNode(id1) -> id1
---   let pred = case l6 of [Triple a b c] -> b
---   let obj = case l6 of [Triple a b c] -> c
---   obj
 
 someFunc = do
-  let x = LibData.load
-  let y = take 1 x
+  let x1 = LibData.load
+  let x2 = LibData2.load
+  --let x = merge x1 x1
+  let y = take 1 x1
   --let s = show y
   putStrLn "ok"
 
@@ -220,117 +174,60 @@ load_step3 x = do
              Right x3 -> x3
              -- Left erro
   x4
-
---triple :: Node -> t1 -> t -> [Char]
-
---load :: [[Char]]
-
---import Data.RDF.Query
---import Data.RDF.Namespace
---import Data.Attoparsec
---import Text.RDF.RDF4H.NTriplesSerializer
-
-
--- data Text
---   = Data.Text.Internal.Text {-# UNPACK #-}Data.Text.Array.Array
---                             {-# UNPACK #-}Int
---                             {-# UNPACK #-}Int
---Data.Text.Internal.Text :: Data.Text.Array.Array -> Int -> Int -> Text
-  
---import Data.RDF.Types
---import Text.RDF.RDF4H.NTriplesParser
-----import Text.RDF.RDF4H.TurtleParser -- TurtleParserCustom
---import Data.RDF.Graph.TList
---import System.IO
---import Data.Attoparsec.ByteString (parse,IResult(..))
---import Text.RDF.RDF4H.ParserUtils
---import qualified Data.Text as T
---import Data.String
-
---data NodeRef =
-  
   
 
-
-
-
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 bu = "https://h4ck3rm1k3.github.io/gogccintro/gcc/ontology/2017/05/20/gcc_compiler.owl#"
-
-triple2 a b c =
-  case a of
---    LNode (x) -> "Bar"
+bu2 = "http://www.co-ode.org/ontologies/ont.owl#"
+owl = "http://www.w3.org/2002/07/owl#"
+triple2 t = case t of
+  Triple a b c -> case a of
     UNode (x) -> do
       let v2 = bu `isPrefixOf` x
       case v2 of
+        False -> do
+          let v2 = bu2 `isPrefixOf` x
+          let v3 = stripPrefix bu2 x
+          case v3 of
+            Just v4 -> v4
         True -> do
           let v3 = stripPrefix bu x
           case v3 of
-            Just v4 -> do
-              let v5 = readMaybe v4 :: Maybe Int
-              case v5 of
-                Just v6 -> NodeId(v6)
+            Just v4 -> v4
+              --let v5 = readMaybe v4 :: Maybe Int
+              --case v5 of
+              --  Just v6 -> v6
 
-      --case x of [Char] ->
---      case x of UNode(y) ->
---                  "Foo"
+canStrip b t = do
+  let v2 = isPrefixOf b t
+  case v2 of
+    True -> do
+      stripPrefix b t
+    False -> Nothing
+      
+
+--matchFirst :: (Ord a) => [a] -> a
+matchFirst t []  = Nothing
+matchFirst t [x]  = canStrip x t
+matchFirst t (x:xs)  = do  
+  let v2 = canStrip x t
+  case v2 of
+    Just v3 -> v2
+    Nothing -> matchFirst t xs
+  
+procNode c =
+  case c of 
+    UNode (x) -> do
+      matchFirst x [ bu , bu2 , rdf, owl ]
+    LNode (PlainL s) -> Just s
+
+triple4 t = case t of
+  Triple a b c -> [
+    procNode a,
+      procNode b,
+          procNode c
+                  ]
+
           
    
                         
-
---instance Show a => Show (Node a) where
---      showsPrec _ x = showsNode x
-
--- --showGraph' gr = concatMap (\t -> show t ++ "\n") (expandTriples gr)
--- expandTriples :: (Rdf a) => RDF a -> Triples
--- expandTriples rdf = expandTriples' [] (baseUrl rdf) (prefixMappings rdf) (triplesOf rdf)
-
--- expandTriples' :: Triples -> Maybe BaseUrl -> PrefixMappings -> Triples -> Triples
--- expandTriples' acc _ _ [] = acc
--- expandTriples' acc baseURL prefixMaps (t:rest) = expandTriples' (normalize baseURL prefixMaps t : acc) baseURL prefixMaps rest
---   where normalize baseURL' prefixMaps' = absolutizeTriple baseURL' . expandTriple prefixMaps'
-
--- -- |Expand the triple with the prefix map.
--- expandTriple :: PrefixMappings -> Triple -> Triple
--- expandTriple pms t = triple (expandNode pms $ subjectOf t) (expandNode pms $ predicateOf t) (expandNode pms $ objectOf t)
-
--- -- |Expand the node with the prefix map.
--- -- Only UNodes are expanded, other kinds of nodes are returned as-is.
--- expandNode :: PrefixMappings -> Node -> Node
--- expandNode pms (UNode n) = unode $ expandURI pms n
--- expandNode _ n'          = n'
-
--- -- |Expand the URI with the prefix map.
--- -- Also expands "a" to "http://www.w3.org/1999/02/22-rdf-syntax-ns#type".
--- expandURI :: PrefixMappings -> T.Text -> T.Text
--- expandURI _ "a"  = T.append (NS.uriOf NS.rdf) "type"
--- expandURI pms' x = firstExpandedOrOriginal x $ catMaybes $ map (resourceTail x) (NS.toPMList pms')
---   where resourceTail :: T.Text -> (T.Text, T.Text) -> Maybe T.Text
---         resourceTail x' (p', u') = T.stripPrefix (T.append p' ":") x' >>= Just . T.append u'
---         firstExpandedOrOriginal :: a -> [a] -> a
---         firstExpandedOrOriginal orig' [] = orig'
---         firstExpandedOrOriginal _ (e:_)  = e
-
---load_step :: RDF TList
--- load_step = do
---   x <- parseRdf1 -- remove the IO
-  
--- extract_list :: RDF TList
--- extract_list x = do
---   x :: Either ParseFailure (RDF TList)
---   let x4 = case x of Right x3 -> x3
---   x4 :: RDF TList
---   x4
-
-    
--- load_store = do
---   x <- parseRdf1 -- remove the IO
---   let x4 = case x of Right x3 -> x3
---   --let xt = triplesOf x4 -- all the triples Data.RDF.Types.triplesOf :: Data.RDF.Types.RDF rdfImpl
---   x4
-
---current_database = load_store
---query_current_store = query current_database
-
---get_one_url x = case x of [UNode url] -> url
-
---string_constants = query_current_store Nothing (Just (UNode (T.pack "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))) (Just(UNode (T.pack "https://h4ck3rm1k3.github.io/gogccintro/gcc/ontology/2017/05/20/gcc_compiler.owl#string_cst")))
