@@ -4,8 +4,10 @@
 -- from ~/.stack/indices/Hackage/packages/rdf4h/3.0.1/rdf4h-3.0.1.tar.gz!rdf4h-3.0.1/testsuite/tests/Data/RDF/GraphTestUtils.hs
 module Lib
     ( someFunc,
-      triple2,
-      triple3,
+--      triple2,
+--      triple3,
+      baseUrl,
+      ontologies,
       triple4,
       matchFirst,
       canStrip
@@ -18,6 +20,7 @@ import LibData2 (load)
 import Data.List
 import Text.Read
 import qualified Data.Text as T
+import qualified Data.Map.Strict as Map
 -- import Data.RDF.Query
 -- import Data.RDF.Namespace
 -- --import Data.Attoparsec
@@ -42,51 +45,132 @@ import qualified Data.Text as T
 
 import Rdf(Node(..), Triple(..), LValue(..))
 
+--data SomeInstance = SomeInstance
 class OwlOntology a where
   baseUrl :: a -> String
-
-data GccOntologyData =
-  GccOntology2()
-
+  make_instance  :: a -> String -> a
   
-instance OwlOntology GccOntologyData where
-  baseUrl a = "https://h4ck3rm1k3.github.io/gogccintro/gcc/ontology/2017/05/20/gcc_compiler.owl#"
+
+data GccOntologyData =  GccOntologyData
+  | SomeGCCLiteral(String) 
+  | SomeInstance(String)
+  deriving Show
+
+data GccOntologyData2 =  GccOntologyData2
+                      | SomeInstance2(String)
+  deriving Show
+
+data StatementPart =
+  Subject(Maybe Ontos)
+  |Predicate(Maybe Ontos)
+  |Object(Maybe Ontos)
+  deriving Show
+
+data Statement = Statement(StatementPart,StatementPart,StatementPart)
+  deriving Show
 
 data MainRDF = MainRDF
   | Type -- "type"
-  
-data RDFS = RDFS()
-data OWL = OWL()
-data DC = DC()
+  | SomeInstance3(String)
+  deriving Show
 
+data RDFS = RDFS
+  | SomeInstance4(String)
+  deriving Show
+data OWL = OWL
+  | SomeInstance5(String)
+  deriving Show
+data DC = DC
+    | SomeInstance6(String)
+        deriving Show
 
-instance OwlOntology MainRDF where
-  baseUrl a = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-
-instance OwlOntology RDFS where
-  baseUrl a = "http://www.w3.org/2000/01/rdf-schema#"
-
-instance OwlOntology OWL where
-  baseUrl a = "http://www.w3.org/2002/07/owl#"
-
-instance OwlOntology DC where
-  baseUrl a = "http://purl.org/dc/elements/1.1/"
-  
-  
--- (UNode "#type") (UNode "https://h4ck3rm1k3.github.io/gogccintro/gcc/ontology/2017/05/20/gcc_compiler.owl#string_cst")
-
+data Ontos =  AGccOntologyData(GccOntologyData)
+  | AGccOntologyData2( GccOntologyData2 )
+  | AMainRDF(MainRDF)
+  | ARDFS(RDFS) 
+  | AOWL (OWL )
+  | ADC (DC )
+  deriving Show
 
 data GccPredicates =
   StringNode
   | FunctionNameString(GccPredicates)
+  deriving Show
 
 data GccTypes = 
   StringCst
+  deriving Show
 
 data GccElements =
-  Predicate(GccPredicates)
+  APredicate(GccPredicates)
   | Types(GccTypes)
+  deriving Show
+
+instance OwlOntology GccOntologyData where
+  baseUrl a = "https://h4ck3rm1k3.github.io/gogccintro/gcc/ontology/2017/05/20/gcc_compiler.owl#"
+  make_instance a x = SomeInstance(x)
+
+instance OwlOntology GccOntologyData2 where
+  baseUrl a = "http://www.co-ode.org/ontologies/ont.owl#"
+  make_instance a x = SomeInstance2(x)
+
+instance OwlOntology MainRDF where
+  baseUrl a = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  make_instance a x = SomeInstance3(x)  
+
+instance OwlOntology RDFS where
+  baseUrl a = "http://www.w3.org/2000/01/rdf-schema#"
+  make_instance a x = SomeInstance4(x)
   
+instance OwlOntology OWL where
+  baseUrl a = "http://www.w3.org/2002/07/owl#"
+  make_instance a x = SomeInstance5(x)
+  
+instance OwlOntology DC where
+  baseUrl a = "http://purl.org/dc/elements/1.1/"
+  make_instance a x = SomeInstance6(x)
+  
+instance OwlOntology Ontos where
+  baseUrl a = case a of 
+    AGccOntologyData(b) -> baseUrl b
+    AGccOntologyData2( b ) -> baseUrl b
+    AMainRDF(b) -> baseUrl b
+    ARDFS(b)  -> baseUrl b
+    AOWL (b ) -> baseUrl b
+    ADC (b) -> baseUrl b
+
+  make_instance a x = case a of 
+     AGccOntologyData(b) -> AGccOntologyData(make_instance b x)
+     AGccOntologyData2( b ) -> AGccOntologyData2(make_instance b x)
+     AMainRDF(b) -> AMainRDF(make_instance b x)
+     ARDFS(b)  -> ARDFS(make_instance b x)
+     AOWL (b ) -> AOWL(make_instance b x)
+     ADC (b) -> ADC(make_instance b x)
+  
+--dosomth x = baseUrl x
+-- distribute f x  = case x of 
+--     AGccOntologyData(b) -> f b
+--     AGccOntologyData2( b ) -> f b
+--     AMainRDF(b) -> f b
+--     ARDFS(b)  -> f b
+--     AOWL (b ) -> f b
+--     ADC (b) -> f b
+
+ontologies = [
+  AGccOntologyData(GccOntologyData) ,
+  AGccOntologyData2(GccOntologyData2 ),
+  AMainRDF(MainRDF),
+  ARDFS(RDFS) ,
+  AOWL(OWL) ,
+  ADC(DC) ]
+
+makepair x = (baseUrl x,x)
+pairlist = map makepair ontologies 
+url_lookup = Map.fromList pairlist
+url_list = map baseUrl ontologies 
+
+-- (UNode "#type") (UNode "https://h4ck3rm1k3.github.io/gogccintro/gcc/ontology/2017/05/20/gcc_compiler.owl#string_cst")
+
 class OwlNodeClass a where
   nameString :: a -> String
 
@@ -106,103 +190,88 @@ instance OwlNodeClass GccElements where
   nameString a =
     case a of
       
-      Predicate(p) -> case p of
+      APredicate(p) -> case p of
                         StringNode -> "strg"
                         FunctionNameString(x) -> "strg"
       Types(t) -> case t of
                     StringCst-> "string_cst"
                                    
 list_of_types = [
-  Predicate(StringNode),
+  APredicate(StringNode),
   Types(StringCst)
       ]
 
-exampleTTLFile = "/home/mdupont/experiments/gcc-ontology/data/clean2.ttl"
+--exampleTTLFile = "/home/mdupont/experiments/gcc-ontology/data/clean2.ttl"
 
 someFunc = do
   let x1 = LibData.load
   let x2 = LibData2.load
-  --let x = merge x1 x1
   let y = take 1 x1
-  --let s = show y
   putStrLn "ok"
-
--- extract_string i2 = do
--- --  i2 :: Node
---   case i2  of
---     --[] -> T.pack "Empty array"
---     --_ -> T.pack "other"
---     LNode (PlainL s) -> s
---     --UNode (url) -> url
---     --BNode b -> b
---     --UNode _:_:_ -> T.pack "UNode"
---     --BNode _:_ -> T.pack "BNode"
---     --BNodeGen _:_ -> T.pack "BNodeGen"
---     --BNodeGen b -> T.pack "Some Node"
---     --LNode (PlainLL a b) ->  b
-                      
---extract_object x = (extract_string (objectOf x))
-
--- someFunc2 = do
---   x <- parseRdf1 -- remove the IO
---   let x4 = case x of Right x3 -> x3
---   let xt = triplesOf x4 -- all the triples Data.RDF.Types.triplesOf :: Data.RDF.Types.RDF rdfImpl
-
---   let f = somesteps xt
---   let x2 = show f
---   putStrLn x2
---  let triples = query graph (Just (unode eswcCommitteeURI)) (Just (unode heldByProp)) Nothing
-  --show subject_id
-  --x4 :: RDF TList  
-  --let x2 = showGraph x
---  let x2 = case x of Right x3 -> x3
-  
-  --x4 :: RDF TList
-  -- x2
-  -- :: Either
-  --      Data.RDF.Types.ParseFailure
-  --      (Data.RDF.Types.RDF Data.RDF.Graph.TList.TList)
-       
-  putStrLn "hello"
-  --putStrLn "someFunc" + rdf2
-  --withFile "out.nt" WriteMode (\h -> hWriteRdf NTriplesSerializer h rdfGraph
-
---x <- parseRdf1 -- remove the IO
 
 load_step3 x = do
   let x4 = case x of
              Right x3 -> x3
-             -- Left erro
+             Left x3 -> Nothing
   x4
   
 
-rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-bu = "https://h4ck3rm1k3.github.io/gogccintro/gcc/ontology/2017/05/20/gcc_compiler.owl#"
-bu2 = "http://www.co-ode.org/ontologies/ont.owl#"
-owl = "http://www.w3.org/2002/07/owl#"
-triple2 t = case t of
-  Triple a b c -> case a of
-    UNode (x) -> do
-      let v2 = bu `isPrefixOf` x
-      case v2 of
-        False -> do
-          let v2 = bu2 `isPrefixOf` x
-          let v3 = stripPrefix bu2 x
-          case v3 of
-            Just v4 -> v4
-        True -> do
-          let v3 = stripPrefix bu x
-          case v3 of
-            Just v4 -> v4
-              --let v5 = readMaybe v4 :: Maybe Int
-              --case v5 of
-              --  Just v6 -> v6
+-- rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+-- bu = "https://h4ck3rm1k3.github.io/gogccintro/gcc/ontology/2017/05/20/gcc_compiler.owl#"
+-- bu2 = "http://www.co-ode.org/ontologies/ont.owl#"
+-- owl = "http://www.w3.org/2002/07/owl#"
 
+
+                  
+-- triple2 t = case t of
+--   Triple a b c -> case a of
+--     NodeId _ -> "NodeId"
+--     LNode _ -> "LNode"
+--     UNode (x) -> do
+--       let v2 = bu `isPrefixOf` x
+--       case v2 of
+--         False -> do
+--           let v2 = bu2 `isPrefixOf` x
+--           let v3 = stripPrefix bu2 x
+--           case v3 of
+--             Nothing -> "Nothing"
+--             Just v4 -> v4
+--         True -> do
+--           let v3 = stripPrefix bu x
+--           case v3 of
+--             Nothing -> "Nothing"
+--             Just v4 -> v4
+--               --let v5 = readMaybe v4 :: Maybe Int
+--               --case v5 of
+--               --  Just v6 -> v6
+
+--canStrip :: [Char] -> [Char] -> Maybe Ontos
 canStrip b t = do
   let v2 = isPrefixOf b t
   case v2 of
     True -> do
-      stripPrefix b t
+      let v = stripPrefix b t
+      let onto = url_lookup Map.! b
+      --Just onto
+      case v of
+        Just vs -> do
+          let i = make_instance onto vs
+          Just (i)
+              
+          -- case onto of 
+          --   AGccOntologyData(b) -> do
+          --     let i = make_instance b vs
+          --     Just (AGccOntologyData (i))
+              
+            --AGccOntologyData2( b ) -> Just AGccOntologyData2 make_instance b v
+            --AMainRDF(b) -> make_instance b v
+            --ARDFS(b)  -> make_instance b v
+            --AOWL (b ) -> make_instance b v
+            --ADC (b) -> make_instance b v
+
+          --let i = make_instance onto vs
+          --Just i
+        
     False -> Nothing
       
 
@@ -216,17 +285,19 @@ matchFirst t (x:xs)  = do
     Nothing -> matchFirst t xs
   
 procNode c =
-  case c of 
+  case c of
+    NodeId (y) -> Nothing
     UNode (x) -> do
-      matchFirst x [ bu , bu2 , rdf, owl ]
-    LNode (PlainL s) -> Just s
+      matchFirst x url_list
+            
+    LNode (PlainL s) -> Just (AGccOntologyData(SomeGCCLiteral(s)))
 
 triple4 t = case t of
-  Triple a b c -> [
-    procNode a,
-      procNode b,
-          procNode c
-                  ]
+  Triple a b c -> Statement(
+    Subject(procNode a),
+      Predicate(procNode b),
+      Object(procNode c)
+    )
 
           
    

@@ -15,7 +15,7 @@ data LValue =
   PlainL ![Char]
 --  | PlainLL !T.Text !T.Text
 --  | TypedL !T.Text  !T.Text
-
+  deriving Show
 
 data Node =
   NodeId(Int)
@@ -23,6 +23,7 @@ data Node =
 --  | BNode !String
 --  | BNodeGen !Int
   | LNode !LValue
+          deriving Show
 
 lnode2 x = LNode x
 
